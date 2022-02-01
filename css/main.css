@@ -59,7 +59,7 @@ ul.posts li {
 .buttongreen {
   background-color: #477685; 
   color: white; 
-  border: 2px solid #4CAF50;
+  border: 3px solid #4CAF50;
 }
 .buttongreen:hover {
   background-color: #4CAF50;
