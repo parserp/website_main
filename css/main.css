@@ -49,8 +49,8 @@ ul.posts li {
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 64px;
-  margin: 4px 2px;
+  font-size: 40px;
+  margin: 4px 6px;
   transition-duration: 0.4s;
   cursor: pointer;
 }
