@@ -66,9 +66,9 @@ ul.posts li {
   color: white;
 }
 img {
-	width: auto; 
-	height: auto;
-	object-fit: contain;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 div.imgserver {
 	margin: 0;
