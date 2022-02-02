@@ -57,24 +57,39 @@
 		My Plex and NextCloud servers run as jails on this box. These are the specs:
 	</p>
 	<ul style=“list-style-type:square”>
-	<li>Supermicro X9DRi-F</li>
-	<li>2 x Xeon 2696 v2 with Supermicro active coolers (SNK-P0050AP4)</li>
-	<li>256GB DDR3 ECC 1066 Mhz (lots of RAM, but not that great of RAM)</li>
-	<li>LSI 9211-8i</li>
-	<li>10G networking card (SFP+ DAC connected to switch)</li>
-	<li>PWS-920P-SQ (this power supply was WAY quieter than the original 1200W one)</li>
-	<li>2 x 1TB NVMe drives (these are mirrored and store the jail metadata)</li>
-	<li>14 x 14TB WD Shucked HDDs - running in a RAID-Z3 configuration. Total usable pool capacity is 125 TiB.</li>
-	<li>1 x 12TB WD Shucked HDD - operating a backup for important data (non Movies/TV Shows). At some point this will need to be expanded.</li>
-	<li>9 x 3TB random SAS drives I bought for $20 a pop - running in a RAID-Z2 configuration. Acts as storage for the seedbox.</li>
+		<li>Supermicro X9DRi-F</li>
+		<li>2 x Xeon 2696 v2 with Supermicro active coolers (SNK-P0050AP4)</li>
+		<li>256GB DDR3 ECC 1066 Mhz (lots of RAM, but not that great of RAM)</li>
+		<li>LSI 9211-8i</li>
+		<li>10G networking card (SFP+ DAC connected to switch)</li>
+		<li>PWS-920P-SQ (this power supply was WAY quieter than the original 1200W one)</li>
+		<li>2 x 1TB NVMe drives (these are mirrored and store the jail metadata)</li>
+		<li>14 x 14TB WD Shucked HDDs - running in a RAID-Z3 configuration. Total usable pool capacity is 125 TiB.</li>
+		<li>1 x 12TB WD Shucked HDD - operating a backup for important data (non Movies/TV Shows). At some point this will need to be expanded.</li>
+		<li>9 x 3TB random SAS drives I bought for $20 a pop - running in a RAID-Z2 configuration. Acts as storage for the seedbox.</li>
 	</ul>
 	<p>
-	It's a pretty capable server, but boy is it power hungry. Each of the CPUs has a TDP of 130W, plus there's overhead for the fact that the 
-	CPUs have to distribute workload. With the drives going and the CPUs idle, it'll pull 300W at the wall, and can easily reach 700 when under 
-	100% load.
+		It's a pretty capable server, but boy is it power hungry. Each of the CPUs has a TDP of 130W, plus there's overhead for the fact that the 
+		CPUs have to distribute workload. With the drives going and the CPUs idle, it'll pull 300W at the wall, and can easily reach 700 when under 
+		100% load.
+		<br>
+		<br>
+		As far as what's running on the server, the Plex jail is pretty much vanilla, but NextCloud is fairly modified to act as a family photo server 
+		(though it works good, it doesn't work great). I'll have to do a more thorough write up on my NextCloud configuration and photos "solution" at some point.
+	</p>
 	<br>
-	As far as what's running on the server, the Plex jail is pretty much vanilla, but NextCloud is fairly modified to act as a family photo server 
-	(though it works good, it doesn't work great). I'll have to do a more thorough write up on my NextCloud configuration and photos "solution" at some point.
-	</p>		
+	<br>
+	<h2>APC UPS - SUA1500RM2U</h2>
+	<p>
+		This was the largest size UPS I could get without adding a 20 or 30 amp circuit to my storage space. I wish I had buckled down and gone for it, because my 
+		Supermicro 4U PSU complains when connected to such a small UPS. It does backup everything besides the main server, with about 50 minutes of runtime.
+	</p>
+	<br>
+	<br>
+	<h2>Not Pictured - 2 x Raspberry Pi</h2>
+	<p>
+		I believe one is a 3B+ and one is a 4B 2GB. Between the two of them, they run PiHole, PiVPN, and the Plex Requests server. They also deal with a couple random 
+		things like dealing with SSL certificates and keeping the dynamic DNS updated (though, my home IP address hasn't changed in a year, so it's not a big job).
+	</p>
 </body>
 </html>
