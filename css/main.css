@@ -43,14 +43,21 @@ footer {
 	border-top: 1px solid #d5d5d5;
 	font-size: .8em;
 }
-
-ul.posts { 
+ul { 
 	margin: 20px auto 40px; 
-	font-size: 1.5em;
+	font-size: 1.25em;
+	
 }
-
-ul.posts li {
-	list-style: none;
+ul li {
+	list-style-type: square;
+	padding: 4px 0px;
+}
+ul.listarrow li {
+	list-style-type: none;
+}
+ul.listarrow li:before {
+	content: "\2192 \0020";
+	padding: 4px 0px;
 }
 .buttonhoverable {
   border: none;
@@ -85,5 +92,17 @@ hr {
 	margin-right: auto;
 	background-color: #4CAF50;
 }
+div.code {
+	max-width:100%
+	height: auto;
+	object-fit: contain;
+	white-space: pre-wrap;
+	/*color: white;*/
+	outline: 1px solid #4CAF50;
+	/*background-color: #F6F6F6;*/
+	/*background-color: #ffffff;*/
+	/*font-size: 1.15em;*/
+}
+
 
 	

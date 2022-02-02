@@ -4,6 +4,9 @@
 	<link rel="stylesheet" href="../css/main.css">
 	<title>jreeves - Video Conversion</title>
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.3/styles/default.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.3/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
 </head>
 <body>
 	<h3><a href="../projects">← Back to projects list</a></h3>
@@ -38,9 +41,141 @@
 	<br>
 	<hr>
 	<br>
-	<h2>Continuing...</h2>
+	<h2>Deciding on encoding settings</h2>
 	<p>
-		More coming soon...
+		This was the most difficult part of the project, because while there are some absolutes in video encoding, settings that are very similar can look different to each set of eyes - 
+		so there's a variety of opinions when it comes to what the "best" settings are. That being said, the settings I use are intended to get an overall good result when batch encoding 
+		many movies, and for each individual movie, there are settings that could be tweaked to get a better individual result. I don't have time to figure that out for each movie, so 
+		getting a good batch encode is going to be my next best bet.
+		<br>
+		<br>
+		One of the biggest first choices was which codec to use. I went with H.265, mostly by process of elimination. H.264 I ruled out because the bitrate required for a great encode was too much to swallow. 
+		AV1 I ruled out because while it is an awesome codec, at the time of writing (2022) hardware support is far from the norm. It also takes an incredible amount of time to encode. H.266 is so far out that 
+		it's not worth considering (plus, FFmpeg won't have a library for it for a while). H.265 encoding is slow, especially for the settings I use, but it's good enough. It also has pretty good hardware 
+		decoding support across most platforms.
+		<br>
+		<br>
+		Diving further into the encoding settings themselves, the lines start to become blurred between fact and opinion. I'll probably state some things as facts that are far from it - just be aware that my 
+		encoding settings work pretty well for my use case, and not all principles can be applied to a project with different variables. Anyway, the two big settings I went with right off the bat were 10 bit HEVC, 
+		and using a CRF value instead of a target bitrate with either 1 or 2 passes. This is generally considered best practice, as target bitrate introduces problems of its own depending on the content. 
+		<br>
+		<br>
+		With other settings beyond a CRF value, I tried to have as few as possible because [in my opinion] the HEVC developers did a pretty good job making the vanilla encoding settings work well on 
+		most videos. The only one that I felt strongly enough about its impact to include was disabling SAO (a tool used to smooth objects out) on animated content. Beyond that, since I'm strictly 
+		doing batch encoding of remuxes, it seemed having good general settings would be better than diving in to which option gives the best result on a specific movie.
+		<br>
+		<br>
+		That's enough info (and disclaimers) to get to the really cool part, the automation! Granted, it's just a simple Python script, but it does the job well.
+		<div class="code"><pre><code class="python">
+import os, subprocess, re
+import tkinter as tk
+from tkinter import filedialog
+from collections import defaultdict
+
+root = tk.Tk()											# This is just to suppress the Tkinter window from displaying
+root.withdraw()
+
+root_path = filedialog.askdirectory(title="Select Source Directory")				# get source and destination paths
+dest_path = filedialog.askdirectory(title="Select Destination Directory")
+
+crf = input('CRF rate eg. 18: ')								# input variables (note that I do no error checking, since I'm the only one running this script)
+conv_audio = input('Convert Audio?: ')
+is_animation = input('Animated?: ')
+crop = input('Crop Videos (if possible)?: ')
+if crop == 'y':											# bad idea to enable cropping with IMAX movies, since the parsed frames may not be in an IMAX shot
+	offset = input('Seconds to skip before crop detecting (e.g. 900): ')
+	if offset == '':									# default to 900 seconds
+		offset = '900'
+	frames = input('Frames to parse (e.g. 14400): ')
+	if frames == '':
+		frames = '14400'								# default to 14400 frames to parse (yes, it's overkill, but I wanted to be safe since I won't be checking every video output)
+		
+for root, directory, files in os.walk(root_path):						# recursively find all video files
+	for f in files:
+		if f[-4:] in ['.mp4', '.mkv', '.mov', '.MKV', '.avi']:
+			path = os.path.join(root,f)
+			new_path = os.path.join(dest_path,f)
+			if not os.path.exists(new_path):					# for starting in the middle of a batch - don't process completed videos
+				result = subprocess.getoutput(f'ffprobe "{path}"')
+				crop_data = ''
+				if crop == 'y':							# calculate crop data by parsing X frames if desired
+					print('Processing cropping data... for ' + path)
+					crop_output = re.findall(r'crop=(.*?)\n', subprocess.getoutput(f'ffmpeg -ss {offset} -i "{path}" -vframes {frames} -vf cropdetect -f null -'))
+					crop_list = defaultdict(int)
+					for x in crop_output:
+						crop_list[x] += 1				# This is one of the simplest ways to go about it, just throw all the possible crops into a dictionary
+					frames = int(frames)
+					for k,v in crop_list.items():
+						if v > (frames * .95):				# as long as more than 95% of frames have the same crop data, we're in business. If they don't, the video will maintain the same aspect ratio.
+							crop_data = '-vf crop='+k
+	
+				subs = ''
+				animated = ''
+				sao = ''
+				audio = '-c:a copy'						# default is copy audio
+				if is_animation == 'y':
+					animated = '-tune animation'				# I have noticed a very slight advantage in sharpness when removing sao for animation. Debatable though
+					sao = ':no-sao=1'
+				if 'Subtitle: ' in result:					# ffmpeg will get angry if you tell it to copy subs when there aren't any
+					subs = '-c:s copy'
+				if conv_audio == 'y':
+					audio = '-c:a ac3 -b:a 640k'				# default for audio conversion is ac3 640Kbps (this is not optimal, and isn't used frequently. Most movies have a DTS-HD track)
+					if 'Audio: dts' in result:
+						audio = '-bsf:a dca_core -c:a copy' 		# extract DTS core if available. This is better than actually converting audio, because ffmpeg doesn't have a great audio encoder
+						
+				# this is the bread and butter of the entire process. all the settings get thrown into this one ffmpeg call. It may not be the most optimized, but it works.
+				os.system(f'ffmpeg -hide_banner -i "{path}" {crop_data} -pix_fmt yuv420p10le -preset slow {animated} -map 0:a? -map 0:s? {audio} {subs} -map 0:v -c:v libx265 -x265-params profile=main10:crf={crf}{sao} -y "{new_path}"')
+		</code></pre></div>
+	</p>
+	<br>
+	<hr>
+	<br>
+	<h2>Figuring out CRF and encoding speed</h2>
+	<p>
+		The FFmpeg HEVC documentation states "<i>Use the slowest preset you have patience for.</i>". Based off of a few opinions on message boards, I decided on the 'slow' preset. It gives enough 
+		advantages over 'medium' and 'fast', while not having an unnecessarily long encode time. 
+	<br>
+	<br>
+		The last factor is the CRF value to use for HEVC. This has a variety of opinions. For example, these are some of the things I've heard (some may be more factual than others):
+	</p>
+	<ul>
+		<li>From the FFmpeg documentation: "<i>The default is 28, and it should visually correspond to libx264 video at CRF 23, but result in about half the file size.</i>"</li>
+		<li>'Visually Lossless' for H.264 occurs at about CRF 18</li>
+		<li>CRF for HEVC equals CRF for H.264 plus 2</li>
+	</ul>
+	<p>
+		Some of those statements seem to contradict each other, so I set out to do my own research on the matter. Testing out on a subset of 10 movies, I honestly couldn't tell a visual difference 
+		between anything of CRF < 20-21. I could just set everything at CRF 19 and forget about it, but I wanted to give a little bit of wiggle room for those whose eyes are better than mine. 
+		So I decided to look at it from a storage perspective - because after all, my space is limited. At CRF 19, the average video bitrate within my [small] subset was ~8Mbps. 
+		After a few calculations based on the storage space I have and how large of a movie collection I'd like to be able to handle, I came up with a fairly reasonable number of allocating 10GiB 
+		per movie. Let's do the math here: Overestimating a little bit, the average movie is 2 hours. 10GiB/2 hours equals an overall bitrate of 11,651 Kbps. Subtracting out 1509 kbps for a DTS track and 
+		a hundred or so kbps for subtitles/overhead, we are left with ~10Mbps for the video stream. 
+	</p>
+	<br>
+	<hr>
+	<br>
+	<h2>Execution: putting the theory into practice</h2>
+	<p>
+		So 10Mbps is the target bitrate for my movies. Obviously not every movie is going to come out to exactly that bitrate with CRF encoding, so I went with a range of acceptable bitrates. 
+		The workflow currently looks like this:
+	</p>
+	<ul class="listarrow">
+		<li>Encode movies at CRF 16 for movies made after the year 2000, and at CRF 18 for movies made before the year 2000.</li>
+		<li>If the video bitrate is 7000kbps < bitrate < 13000kbps, great! This movie encode is complete.</li>
+		<li>If it doesn't fall within that range, change the CRF to get it within that range, with a minimum CRF of 14 and a maximum CRF of 22.</li>
+	</ul>
+	<p>
+		There are some that still fall out of the 7-13 Mbps range even when the CRF is tweaked. For movies that are too small at CRF 14, I leave them be. No reason to complain about that! 
+		For movies that are still > 13Mbps at CRF 22, I still don't have a great solution. Out of about 200 movies that I've encoded using this method, maybe 5 or so fall into that category. 
+		A great example of this is the movie <i>12 Angry Men</i> (1957). Even at CRF 24 (over what I'd like the CRF to be), the video bitrate sits at 17Mbps. I may try to figure out some 
+		reasonable H.264 encoding settings for edge cases like this at some future point.
+	</p>
+	<br>
+	<br>
+	<h2>Conclusion</h2>
+	<p>
+		I think that my solution for encoding movies is a pretty good compromise between storage space and video quality. There are still a LOT of movies left to encode before I can wrap this project up, 
+		but after the initial setup and research, it's fairly automated and I don't need to focus so much attention on it. Now if only I could acquire a lot more CPUs to do encoding with...
 	</p>
 	<br>
 	<br>
