@@ -65,4 +65,7 @@ ul.posts li {
   background-color: #4CAF50;
   color: white;
 }
+img {
+	object-fit: contain;
+}
 	
