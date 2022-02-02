@@ -66,6 +66,8 @@ ul.posts li {
   color: white;
 }
 img {
+	width: auto; 
+	height: auto;
 	object-fit: contain;
 }
 	
