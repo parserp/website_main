@@ -185,7 +185,8 @@ for root, directory, files in os.walk(root_path):						# recursively find all vi
 		<br>
 		<br>
 		In the last batch of 100 movies I encoded, it took nearly exactly 10 days to finish encoding. This means that my average encoding time per movie hovers at about 2.4 hours. 
-		The thorn in my side in all of this is that the assumption of CRF 16 and 18 only winds up being within the bitrate range ~45% of the time. 55% of all movies require a second 
+		The thorn in my side in all of this is that the assumption of CRF 16 and 18 only winds up being within the target bitrate range ~45% of the time (this is the best result I could get. 
+		Original guesses at other CRF values were only in the target bitrate range 30% of the time). 55% of all movies require a second 
 		encode at a modified CRF. So, unfortunately, that 10 days for 100 movies suddenly becomes 15.5 days to get encodes that are all within the bitrate constraints.
 		That makes for a calculated encoding time of 3.72 hours per movie.
 		<br>
