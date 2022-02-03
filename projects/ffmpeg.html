@@ -49,7 +49,7 @@
 		getting a good batch encode is going to be my next best bet.
 		<br>
 		<br>
-		One of the biggest first choices was which codec to use. I went with H.265, mostly by process of elimination. H.264 I ruled out because the bitrate required for a great encode was too much to swallow. 
+		One of the first big choices was which codec to use. I went with H.265, mostly by process of elimination. H.264 I ruled out because the bitrate required for a great encode was too much to swallow. 
 		AV1 I ruled out because while it is an awesome codec, at the time of writing (2022) hardware support is far from the norm. It also takes an incredible amount of time to encode. H.266 is so far out that 
 		it's not worth considering (plus, FFmpeg won't have a library for it for a while). H.265 encoding is slow, especially for the settings I use, but it's good enough. It also has pretty good hardware 
 		decoding support across most platforms.
@@ -184,7 +184,7 @@ for root, directory, files in os.walk(root_path):						# recursively find all vi
 		is 0.9).
 		<br>
 		<br>
-		In the last batch of 100 movies I encoded, it took nearly exactly 10 days to finish encoding. This means that my average encoding time per movie hovers at about 2.4 hours. 
+		In the last batch of 100 movies I encoded, it took almost exactly 10 days to finish encoding. This means that my average encoding time per movie hovers at about 2.4 hours. 
 		The thorn in my side in all of this is that the assumption of CRF 16 and 18 only winds up being within the target bitrate range ~45% of the time (this is the best result I could get. 
 		Original guesses at other CRF values were only in the target bitrate range 30% of the time). 55% of all movies require a second 
 		encode at a modified CRF. So, unfortunately, that 10 days for 100 movies suddenly becomes 15.5 days to get encodes that are all within the bitrate constraints.
