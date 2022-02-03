@@ -166,9 +166,31 @@ for root, directory, files in os.walk(root_path):						# recursively find all vi
 	</ul>
 	<p>
 		There are some that still fall out of the 7-13 Mbps range even when the CRF is tweaked. For movies that are too small at CRF 14, I leave them be. No reason to complain about that! 
-		For movies that are still > 13Mbps at CRF 22, I still don't have a great solution. Out of about 200 movies that I've encoded using this method, maybe 5 or so fall into that category. 
+		For movies that are still > 13Mbps at CRF 22, I still don't have a great solution. Out of about 250 movies that I've encoded using this method, maybe 10 or so fall into that category. 
 		A great example of this is the movie <i>12 Angry Men</i> (1957). Even at CRF 24 (over what I'd like the CRF to be), the video bitrate sits at 17Mbps. I may try to figure out some 
 		reasonable H.264 encoding settings for edge cases like this at some future point.
+	</p>
+	<br>
+	<hr>
+	<br>
+	<h2>Encoding time: The Achilles heel?</h2>
+	<p>
+		Given that I want the best possible encode of these remuxes, I'm forced to use pure CPU encoding, with no hardware acceleration enabled on either the CPU or GPU. 
+		This presents a possible problem: is encoding >1000 movies to HEVC on the 'slow' preset actually feasible? I just happened to have a Ryzen 9 3950X laying around, 
+		which has become the main CPU used on this project. With 16 cores, it takes 2-3 simultaneous encodes to keep it at 100% continuous usage. The instantaneous encoding 
+		speed at any given time can range from an aggregate of 0.5 speed to 1.2 speed (this means that if I have 3 encodes all running at 0.3 speed, the aggregate encode speed 
+		is 0.9).
+		<br>
+		<br>
+		In the last batch of 100 movies I encoded, it took nearly exactly 10 days to finish encoding. This means that my average encoding time per movie hovers at about 2.4 hours. 
+		The thorn in my side in all of this is that the assumption of CRF 16 and 18 only winds up being within the bitrate range ~45% of the time. 55% of all movies require a second 
+		encode at a modified CRF. So, unfortunately, that 10 days for 100 movies suddenly becomes 15.5 days to get encodes that are all within the bitrate constraints.
+		That makes for a calculated encoding time of 3.72 hours per movie.
+		<br>
+		<br>
+		My movie library currently sits at ~1500 movies. Doing the math at 3.72 hours per movie, the total encoding time on my Ryzen will take 232.5 days, excluding overhead. 
+		That's about 8 months. Is it way longer than I would prefer? Yes. Is it attainable? Absolutely. As of the time of writing this, I'm about 1.5 months into the project, 
+		with no regrets (so far).
 	</p>
 	<br>
 	<hr>
