@@ -161,7 +161,8 @@ for root, directory, files in os.walk(root_path):						# recursively find all vi
 		The workflow currently looks like this:
 	</p>
 	<ul class="listarrow">
-		<li>Encode movies at CRF 16 for movies made after the year 2000, and at CRF 18 for movies made before the year 2000.</li>
+		<li>Encode movies at CRF 16 for movies made after the year 2000, and at CRF 18 for movies made before the year 2000. (As a generality, CRF 16 works better for movies that are more 
+		likely to be digitally shot. It's only accurate about half the time)</li>
 		<li>If the video bitrate is 7000kbps < bitrate < 13000kbps, great! This movie encode is complete.</li>
 		<li>If it doesn't fall within that range, change the CRF to get it within that range, with a minimum CRF of 14 and a maximum CRF of 22.</li>
 	</ul>
