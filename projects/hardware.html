@@ -71,13 +71,13 @@
 		<li>PWS-920P-SQ (this power supply was WAY quieter than the original 1200W one)</li>
 		<li>2 x 1TB NVMe drives (these are mirrored and store the jail metadata)</li>
 		<li>14 x 14TB WD Shucked HDDs - running in a RAID-Z3 configuration. Total usable pool capacity is 125 TiB.</li>
-		<li>1 x 12TB WD Shucked HDD - operating a backup for important data (non Movies/TV Shows). At some point this will need to be expanded.</li>
+		<li>1 x 12TB WD Shucked HDD - operating a backup for important data (non Movies/TV Shows). At some point this will need to be expanded. 
+		And for all the backup sticklers: I keep a mirror of this drive offsite, as well as a GDrive offsite backup of the entire server.</li>
 		<li>9 x 3TB random SAS drives I bought for $20 a pop - running in a RAID-Z2 configuration. Acts as storage for the seedbox.</li>
 	</ul>
 	<p>
 		It's a pretty capable server, but boy is it power hungry. Each of the CPUs has a TDP of 130W, plus there's overhead for the fact that the 
-		CPUs have to distribute workload. With the drives going and the CPUs idle, it'll pull 300W at the wall, and can easily reach 700 when under 
-		100% load.
+		CPUs have to distribute workload. With the drives going and the CPUs idle, it'll pull 300W at the wall, and can easily reach 700W when under a heavy load.
 		<br>
 		<br>
 		As far as what's running on the server, the Plex jail is pretty much vanilla, but NextCloud is fairly modified to act as a family photo server 
