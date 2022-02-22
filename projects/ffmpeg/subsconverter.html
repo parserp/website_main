@@ -9,13 +9,27 @@
 	<script>hljs.initHighlightingOnLoad();</script>
 </head>
 <body>
-	<h3><a href="../ffmpeg">← Back to video encoding project</a></h3>
+	<h3><a href="../ffmpeg">← Back to video conversion project</a></h3>
 	<h1>
 		Subtitle Batch Converter
 	</h1>
 	<br>
 	<p>
-		coming soon...
+		My personal opinion of subtitles is that they should be unobtrusive, plain text only, and widely supported by hardware. This presents issues when using the subtitle tracks 
+		found on BluRays - they're always image based PGS subs. I know of very few players that support playback of these - even my Nvidia Shield Pro won't play them (on Plex, on Kodi they work). 
+		So my simple solution is to convert all subtitles to a format literally every player in the world understands: SRT.
+		<br>
+		<br>
+		As far as this script in particular goes, there's a few caveats. The first glaring issue is that converting PGS subtitles to SRT requires using OCR. Generally when using OCR you need to 
+		sit down and manually fix spelling & character errors, which I'm not because, well, I really don't want to do that for 1,000 movies. Some people would say it's a really bad idea to 
+		[attempt to] automate OCR'ing, but I've found that with the program I use, when converting from PGS subtitles, 90% of the errors are due to just a couple of character issues. 
+		You can see this in the script - there's some simple character replacements after OCR'ing. It doesn't make the subs perfect, but the way I see it, having 99% accurate subtitles is 
+		good enough for me.
+		<br>
+		<br>
+		The other issue is dealing with movies with multiple sub tracks. I only keep the English subtitles on movies I watch, which simplifies this issue because every movie will have at most 
+		2 sub tracks - a "forced" track (with only foreign audio parts included), and a "full" track (with text for all speech). This script will convert all the sub tracks to SRT, but by default 
+		will only mux in one of them to the container. I have so few movies with forced sub tracks that it's easier to just mux the second one in manually later (and set the flags appropriately).
 	</p>
 	<br>
 	<hr>
@@ -23,7 +37,65 @@
 	<p>
 		The Code
 		<div class="code"><pre><code class="python">
-import os, subprocess, re
+import datetime, os
+import tkinter as tk
+from tkinter import filedialog
+import subprocess
+
+
+
+root = tk.Tk()                                                                                                                              # suppress Tkinter dialog box from displaying
+root.withdraw()
+
+root_path = filedialog.askdirectory(title="Select Source Directory")
+errors = ''                                                                                                                                 # track any errors (typically none)
+
+for root, directory, files in os.walk(root_path):                                                                                           # recursively find all video files
+    for f in files:
+        try:
+            if f[-4:] in ['.mp4', '.mkv', '.mov', '.MKV', '.avi']:
+                path = os.path.join(root,f)
+                subs_path = [os.path.join(root,f[:-3]+'srt'), os.path.join(root,f[:-3]+'eng.srt'), os.path.join(root,f[:-3]+'und.srt')]     # for SubtitleEdit, these are the common output file names (depending on whether the track was tagged as ENG or just UND)
+                print(path)
+                result = subprocess.getoutput(f'ffprobe "{path}"')
+                if 'dvd_subtitle' in result or 'hdmv_pgs_subtitle' in result or 'Subtitle: ass' in result or 'Subtitle: mov_text' in result or 'Subtitle: none' in result:  # only proceed if there is a sub track worth converting. This will look for PGS and a few others
+                    new_path = os.path.join(root, 'new '+f[:-3]+'mkv')                                                                      # not all containers support SRT subs - it's easiest to just put everything into an mkv
+                    for i in subs_path:                                                                                                     # if for any reason there's an old converted sub file, just remove it
+                        if os.path.exists(i):
+                            os.remove(i)
+                    os.system(f'SubtitleEdit.exe /convert "{path}" srt /encoding:utf-8')                                                    # The OCR'ing is done by SubtitleEdit. It will convert all sub tracks in the container to SRT
+                    subs_path_srt = ''
+                    for i in subs_path:                                                                                                     # This is to figure out the file name of the outputted SRT file. Yes there are more robust and thorough ways of doing this, I'm just lazy
+                        if os.path.exists(i):
+                            subs_path_srt = i
+                    if os.path.exists(subs_path_srt):                                                                                       # Once we find the SRT file, we need to do some editing to it
+                        fdata = ''
+                        with open(subs_path_srt,'r',encoding='utf-8') as f_srt:
+                            lines = f_srt.readlines()
+                            for line in lines:                                                                                              # go through every line in the SRT file to make changes to it
+                                if not line[0].isdigit():                                                                                   # poor man's way of doing it, srt subtitles are numbered and have time stamps. I just avoid any line that starts with a number. This works for 99% of lines
+                                    line = line.replace('0','o').replace('|','l').replace('&lt;i>','').replace('&lt;/i>','')                      # replacing common errors. lowercase 'o' gets tagged as '0' quite a bit. Lowercase 'l' also gets tagged as '|', which I've never seen a valid use for '|' in subs. SubtitleEdit can put itallics in weird places, so I just remove all itallics (I don't really care for them anyway)
+                                fdata += line
+                        with open(subs_path_srt,'w',encoding='utf-8') as f_srt:                                                             # replace data in SRT file with modified lines
+                            f_srt.write(fdata)
+                        
+                        if os.path.exists(new_path):                                                                                        # if for any reason there's an old version of the temp file, remove it
+                            os.remove(new_path)
+                            
+                        # ffmpeg can't do all of this in a single command - hence the pipe. The first part grabs the audio & video from the original container, the second part muxes in the external SRT file, and sets its language and default flag (English, disabling the default flag)
+                        os.system(f'ffmpeg -i "{path}" -map 0:v -map 0:a -c copy -f matroska - | ffmpeg -thread_queue_size 16384 -i - -i "{subs_path_srt}" -map 0:v -map 0:a -map 1:s -c:v copy -c:a copy -c:s copy -metadata:s:s:0 language=eng -default_mode infer_no_subs "{new_path}"')
+                        
+                        if os.path.exists(new_path) and os.stat(new_path).st_size > 100:                                                    # occasionally ffmpeg craps the bed and gives an empty mkv container. This is just to check that the temp file actually has contents
+                            os.remove(path)
+                            os.rename(new_path,os.path.join(root, f[:-3]+'mkv'))                                                            # replace original file with temp file
+                            os.remove(subs_path_srt)                                                                                        # remove external SRT file
+        except Exception as e:                                                                                                              # log any errors
+            print('ERROR:',f)
+            errors += str(e)
+            errors += '\nin file: ' + f + '\n'
+        print(f)
+        
+print('Errors:\n',errors)                                                                                                                  # display any errors
 		</code></pre></div>
 	</p>
 </body>
