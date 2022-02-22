@@ -16,21 +16,23 @@
 	<br>
 	<h2>Intro</h2>
 	<p>
-		Recently I upgraded my TV size by a couple feet, and suddenly I realized that a good portion of the media on my server isn't actually as "HD" as I was led to believe. 
-		This led me on a journey that ultimately is costing a dozen dollars a month in electricity usage: the quest for high quality, low bitrate movies. 
+		Recently I was able to upgrade the size of my TV, and after watching a bit of content, I realized that much of my movie library isn't actually as "HD" as I originally thought. 
+		This led me on a journey that ultimately is costing a dozen dollars a month in electricity usage: the quest for high quality, low bitrate movies (yes, the idea is a bit oxymoronic).
 	</p>
 	<br>
 	<hr>
 	<br>
 	<h2>The Problem</h2>
 	<p>
-		Before, I would "obtain" movies from several different sources. These varied quite a bit depending on where it came from, what codec was used, when it was encoded, etc. 
-		I've always known that these weren't the best copies of the films out there, but to an extent I just didn't care because I didn't have a device that I could tell a difference on.
+		Before, my movie library came from several different sources. These varied quite a bit depending on where it came from, what codec was used, original source material, etc. 
+		There was even a good amount that was still ripped from DVDs, and if you can believe it, VHS! I've always known that these weren't the best copies of the films out there, 
+		but to an extent I just didn't care because I didn't have a device that I could tell a difference on.
 		<br>
 		<br>
 		Long story short, as I tested with videos of higher bitrate, there still was quite a variety of quality. As I dove more into what makes a good video encode, I realized that 
-		the videos I had all had wildly different encoding settings. I imagine that some were even encoded from some other crappy encode. Naturally, the only logical place to go would be the 
-		opposite end of the spectrum - wanting to have the highest quality video possible. This would be Blu-Ray discs, or remuxes (unaltered Blu-Ray material in an mkv container).
+		the videos I had all had wildly different encoding settings. I imagine that some were even encoded from some other crappy encode. Rather than trying to deal with all the inconsistencies, 
+		I decided to go with the most straightforward approach - getting the highest quality video source file I could (and one that hadn't been re-encoded several times). 
+		This would be Blu-Ray discs, or "remuxes" (unaltered Blu-Ray material in an mkv container). 
 		<br>
 		<br>
 		Here is the catch: even with a sizeable pool of hard drives, I'm still constrained by my server's limited capacity. 
@@ -45,13 +47,13 @@
 	<p>
 		This was the most difficult part of the project, because while there are some absolutes in video encoding, settings that are very similar can look different to each set of eyes - 
 		so there's a variety of opinions when it comes to what the "best" settings are. That being said, the settings I use are intended to get an overall good result when batch encoding 
-		many movies, and for each individual movie, there are settings that could be tweaked to get a better individual result. I don't have time to figure that out for each movie, so 
+		many movies, and for each individual movie, there are probably settings that could be tweaked to get a better individual result. I don't have time to figure that out for each movie, so 
 		getting a good batch encode is going to be my next best bet.
 		<br>
 		<br>
 		One of the first big choices was which codec to use. I went with H.265, mostly by process of elimination. H.264 I ruled out because the bitrate required for a great encode was too much to swallow. 
 		AV1 I ruled out because while it is an awesome codec, at the time of writing (2022) hardware support is far from the norm. It also takes an incredible amount of time to encode. H.266 is so far out that 
-		it's not worth considering (plus, FFmpeg won't have a library for it for a while). H.265 encoding is slow, especially for the settings I use, but it's good enough. It also has pretty good hardware 
+		it's not worth considering (plus, FFmpeg won't have a library for it for a while). H.265 encoding is slow, especially for the settings I use, but it's tolerable enough. It also has pretty good hardware 
 		decoding support across most platforms.
 		<br>
 		<br>
@@ -175,7 +177,7 @@ for root, directory, files in os.walk(root_path):						# recursively find all vi
 	<br>
 	<hr>
 	<br>
-	<h2>Encoding time: The Achilles heel?</h2>
+	<h2>Encoding time: The Achilles Heel?</h2>
 	<p>
 		Given that I want the best possible encode of these remuxes, I'm forced to use pure CPU encoding, with no hardware acceleration enabled on either the CPU or GPU. 
 		This presents a possible problem: is encoding >1000 movies to HEVC on the 'slow' preset actually feasible? I just happened to have a Ryzen 9 3950X laying around, 
@@ -184,15 +186,15 @@ for root, directory, files in os.walk(root_path):						# recursively find all vi
 		is 0.9).
 		<br>
 		<br>
-		In the last batch of 100 movies I encoded, it took almost exactly 10 days to finish encoding. This means that my average encoding time per movie hovers at about 2.4 hours. 
+		In the last batch of 100 movies I encoded, it took almost exactly 11.5 days to finish encoding. This means that my average encoding time per movie hovers at about 2.76 hours. 
 		The thorn in my side in all of this is that the assumption of CRF 16 and 18 only winds up being within the target bitrate range ~45% of the time (this is the best result I could get. 
 		Original guesses at other CRF values were only in the target bitrate range 30% of the time). 55% of all movies require a second 
-		encode at a modified CRF. So, unfortunately, that 10 days for 100 movies suddenly becomes 15.5 days to get encodes that are all within the bitrate constraints.
-		That makes for a calculated encoding time of 3.72 hours per movie.
+		encode at a modified CRF. So, unfortunately, that 11.5 days for 100 movies suddenly becomes 17.8 days to get encodes that are all within the bitrate constraints.
+		That makes for a calculated encoding time of 4.28 hours per movie.
 		<br>
 		<br>
-		My movie library currently sits at ~1500 movies. Doing the math at 3.72 hours per movie, the total encoding time on my Ryzen is 232.5 days, excluding overhead. 
-		That's about 8 months. Is it way longer than I would prefer? Yes. Is it attainable? Absolutely. As of the time of writing this, I'm about 1.5 months into the project, 
+		My movie library currently sits at ~1000 movies. Doing the math at 4.28 hours per movie, the total encoding time on my Ryzen is 178 days, excluding overhead. 
+		That's about 6 months. Is it way longer than I would prefer? Yes. Is it attainable? Absolutely. As of the time of writing this, I'm about 1.5 months into the project, 
 		with no regrets (so far).
 	</p>
 	<br>
@@ -203,6 +205,13 @@ for root, directory, files in os.walk(root_path):						# recursively find all vi
 		I think that my solution for encoding movies is a pretty good compromise between storage space and video quality. There are still a LOT of movies left to encode before I can wrap this project up, 
 		but after the initial setup and research, it's fairly automated and I don't need to focus so much attention on it. Now if only I could acquire a lot more CPUs to do encoding with...
 	</p>
+	<br>
+	<hr>
+	<br>
+	<h2>Other fun automation stuff for this project</h2>
+	<p><a href="ffmpeg/subsconverter">Subtitle Batch Converter</a></p>
+	<p><a href="ffmpeg/signature">Clearing Metadata (and more)</a></p>
+	<p><a href="ffmpeg/englishonly">Keeping only English tracks</a></p>
 	<br>
 	<br>
 	<h3><a href="../projects">← Back to projects list</a></h3>
