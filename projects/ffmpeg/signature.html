@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="../../css/main.css">
+	<title>jreeves - Signature</title>
+	<link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.3/styles/default.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.3/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+</head>
+<body>
+	<h3><a href="../ffmpeg">← Back to video conversion project</a></h3>
+	<h1>
+		Removing Metadata
+	</h1>
+	<br>
+	<p>
+		Blu-Rays can come with a variety of metadata already baked into them - and encoding them doesn't touch them by default. 
+		I prefer my files to have only the metadata necessary for proper playback and identification, so removing all of it 
+		is the best bet. That's where this script comes in - its main function is to remove all metadata so nothing is inaccurate, 
+		like bitrate and language.
+		<br>
+		<br>
+		The other function of this is to leave a 'watermark' of sorts in a more useless part of the metadata, so that upon inspection 
+		I can always know if it's something I encoded right off the bat. For this I just put my initials in the 'Title' field of the video stream.
+	</p>
+	<br>
+	<hr>
+	<br>
+	<p>
+		The Code
+		<div class="code"><pre><code class="python">
+import os, subprocess
+import tkinter as tk
+from tkinter import filedialog
+
+root = tk.Tk()                                                              # suppress Tkinter dialog box
+root.withdraw()
+
+root_path = filedialog.askdirectory(title="Select Source Directory")
+add_signature = input('Add Signature? ')
+add_sig = ''
+if add_signature == 'y':                                                    # add signature data if applicable
+    add_sig = '-metadata:s:v:0 title="JR"'
+for root, directory, files in os.walk(root_path):                           # find all video files in directory tree
+    for f in files:
+        if f[-4:] in ['.mp4', '.mkv', '.mov', '.MKV', '.avi']:
+            path = os.path.join(root,f)
+            new_path = os.path.join(root, 'new '+f)
+            if os.path.exists(new_path):                                    # remove old temp file if it exists
+                os.remove(new_path)
+            result = subprocess.getoutput(f'ffprobe "{path}"')
+            if 'Subtitle' in result:
+                # after removing metadata, it's important to add it back (label audio and subs as English, add signature, turn off default flag on subtitles)
+                os.system(f'ffmpeg -i "{path}" -map_metadata -1 -c copy -c:s copy -f matroska -| ffmpeg -i - -c copy -c:s copy {add_sig} -metadata:s:a:0 language=eng -metadata:s:s:0 language=eng -f matroska -| ffmpeg -i - -c copy -c:s copy -map 0 -disposition:s:0 none -default_mode infer_no_subs "{new_path}"')
+            else:
+                os.system(f'ffmpeg -i "{path}" -map_metadata -1 -c copy -f matroska -| ffmpeg -i - -c copy {add_sig} -metadata:s:a:0 language=eng "{new_path}"')
+                
+            if os.path.exists(new_path):                                    # change temp file to original
+                os.remove(path)
+                os.rename(new_path,path)                                                                                                             # display any errors
+		</code></pre></div>
+	</p>
+</body>
+</html>
