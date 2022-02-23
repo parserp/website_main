@@ -13,12 +13,11 @@
 	<h1>
 		Removing Metadata
 	</h1>
-	<br>
 	<p>
 		Blu-Rays can come with a variety of metadata already baked into them - and encoding them doesn't touch them by default. 
-		I prefer my files to have only the metadata necessary for proper playback and identification, so removing all of it 
-		is the best bet. That's where this script comes in - its main function is to remove all metadata so nothing is inaccurate, 
-		like bitrate and language.
+		I prefer my files to have only the metadata necessary for proper playback and identification, and removing all of it 
+		is the most straightforward way to do that. That's where this script comes in - its main function is to remove all 
+		metadata so nothing is inaccurate, like bitrate and language.
 		<br>
 		<br>
 		The other function of this is to leave a 'watermark' of sorts in a more useless part of the metadata, so that upon inspection 
@@ -58,7 +57,7 @@ for root, directory, files in os.walk(root_path):                           # fi
                 
             if os.path.exists(new_path):                                    # change temp file to original
                 os.remove(path)
-                os.rename(new_path,path)                                                                                                             # display any errors
+                os.rename(new_path,path)
 		</code></pre></div>
 	</p>
 </body>
