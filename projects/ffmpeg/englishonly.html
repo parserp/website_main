@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="../../css/main.css">
+	<title>jreeves - English Tags Only</title>
+	<link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.3/styles/default.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.3/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+</head>
+<body>
+	<h3><a href="../ffmpeg">← Back to video conversion project</a></h3>
+	<h1>
+		Keeping Only English Tracks
+	</h1>
+	<p>
+		As mentioned in the <a href="../subsconverter">subtitle converter script</a>, I don't care for anything except 
+		English audio/subs, with the obvious exception of foreign made films with an original language other than English. 
+		The subtitle converter script and this script could be easily modified to accomodate those, I just don't have many 
+		so they're more of the exception than the rule.
+		<br>
+		<br>
+		The only janky thing that has to be dealt with is tracks that are labeled as 'Undetermined', or UND. I prefer having 
+		the video stream labeled as UND, but I think it's a lot cleaner to label the audio/video as their appropriate languages. 
+	</p>
+	<br>
+	<hr>
+	<br>
+	<p>
+		The Code
+		<div class="code"><pre><code class="python">
+import os
+import tkinter as tk
+from tkinter import filedialog
+
+root = tk.Tk()                  # suppress Tkinter Window
+root.withdraw()
+
+root_path = filedialog.askdirectory(title="Select Source Directory")
+grab_english = input('1: Grab English only. 2: Grab first audio/sub track. 3: Grab first audio, english sub tracks ')
+for root, directory, files in os.walk(root_path):
+    for f in files:
+        if f[-4:] in ['.mp4', '.mkv', '.mov', '.MKV', '.avi']:
+            path = os.path.join(root,f)
+            new_path = os.path.join(root, 'new '+f)
+            print(f'\n\n{path}\n{new_path}\n')
+            if grab_english == '1':
+                # Grabs all English audio and subtitles, discards all others
+                os.system(f'ffmpeg -i "{path}" -map 0:v:0 -map 0:a:m:language:eng -map 0:s:m:language:eng -c copy -f matroska - | ffmpeg -thread_queue_size 16384 -i - -c:a copy -c:s copy -c:v copy -y "{new_path}"')
+            elif grab_english == '2':
+                # Grabs just the first audio & sub tracks, labeling them as English
+                os.system(f'ffmpeg -i "{path}" -map 0:v:0 -map 0:a:0 -map 0:s:0 -c copy -f matroska - | ffmpeg -thread_queue_size 16384 -i - -c:a copy -c:s copy -c:v copy -metadata:s:s:0 language=eng -metadata:s:a:0 language=eng -y "{new_path}"')
+            elif grab_english == '3':
+                # Grabs the first audio track, and any english subtitle tracks (for when your audio is UND, but the sub track(s) is ENG
+                os.system(f'ffmpeg -i "{path}" -map 0:v:0 -map 0:a:0 -map 0:s:m:language:eng -c copy -f matroska - | ffmpeg -thread_queue_size 16384 -i - -c:a copy -c:s copy -c:v copy -metadata:s:a:0 language=eng -y "{new_path}"')
+            if os.path.exists(new_path):
+                os.remove(path)
+                os.rename(new_path,path)                            # replace original file with temp file
+		</code></pre></div>
+	</p>
+</body>
+</html>
