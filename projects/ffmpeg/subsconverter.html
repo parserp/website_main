@@ -70,7 +70,7 @@ for root, directory, files in os.walk(root_path):                               
                             lines = f_srt.readlines()
                             for line in lines:                                                                                              # go through every line in the SRT file to make changes to it
                                 if not line[0].isdigit():                                                                                   # poor man's way of doing it, srt subtitles are numbered and have time stamps. I just avoid any line that starts with a number. This works for 99% of lines
-                                    line = line.replace('0','o').replace('|','l').replace('&lt;i>','').replace('&lt;/i>','')                      # replacing common errors. lowercase 'o' gets tagged as '0' quite a bit. Lowercase 'l' also gets tagged as '|', which I've never seen a valid use for '|' in subs. SubtitleEdit can put itallics in weird places, so I just remove all itallics (I don't really care for them anyway)
+                                    line = line.replace('0','o').replace('|','l').replace('&lt;i>','').replace('&lt;/i>','').replace('". ',': ')       # replacing common errors. lowercase 'o' gets tagged as '0' quite a bit. Lowercase 'l' also gets tagged as '|', which I've never seen a valid use for '|' in subs. SubtitleEdit can put itallics in weird places, so I just remove all itallics (I don't really care for them anyway)
                                 fdata += line
                         with open(subs_path_srt,'w',encoding='utf-8') as f_srt:                                                             # replace data in SRT file with modified lines
                             f_srt.write(fdata)
