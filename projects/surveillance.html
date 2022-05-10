@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="../css/main.css">
+	<title>jreeves - Home Surveillance</title>
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+</head>
+<body>
+	<h3><a href="../projects">← Back to projects list</a></h3>
+	<h1>
+		My Home Surveillance System
+	</h1>
+	<br>
+	<h2>Overview</h2>
+	<p>
+		My needs are the same as every other person looking to implement a surveillance system - a reliable monitoring system that I hope never to have to use beyond seeing who is at my 
+		front door. Like an airbag in a car, though, I wanted something I could trust enough that if it becomes critically important, it will work without snags.
+		<br>
+		<br>
+		This was not as huge of a project, but still presented some interesting challenges. There are pre-configured systems out there that are more "user friendly" than the route I went with, 
+		but from having worked with several over the years, and researching many more, I don't like the lack of configuration and scalability that most of them offer. Also in many cases you're 
+		vendor locked on hardware, which I avoid as a matter of principle. In the end, I decided that a computer running a software surveillance system would be the best option for my needs.
+	</p>
+	<br>
+	<hr>
+	<br>
+	<h2>The Hardware</h2>
+	<p>
+		The biggest hurdle on this project was figuring out what hardware to buy. I know all too well the effects on a wallet a power hungry server can use, so I wanted to keep this one 
+		to an absolute bare minimum on power draw. The biggest advantage I could see was to have the most recent version of Intel's QuickSync, with the lowest possible TDP CPU I could find. 
+		This wound up being the Pentium Gold G7400. This is a 12th Gen processor with a 46W TDP and NO turbo frequency. Normally I avoid Intel processors because their TDP ratings are [in my 
+		opinion] very, very misleading. A 65W TDP CPU under full load will easily use over 200W (<a href="https://www.extremetech.com/computing/319402-intels-desktop-tdps-no-longer-useful-to-predict-cpu-power-consumption">source</a>). 
+		This processor, however, has no turbo boost (or whatever Intel's terminology is for it), so 46W is the maximum it'll consume, ever. Running under stress tests at 100% load, the highest 
+		usage I observed was 40W, which is GREAT!
+		<br>
+		<br>
+		The other big decision was cameras. I didn't have too much in the way of requirements, my only stipulations were 1) compatibility with PoE/BlueIris, and 2) reasonable build 
+		quality and resolution. I wound up going with Amcrest cameras because they seemed to fill the requirements at a reasonable price. The only thing I'd warn of with these is that Amcrest 
+		uses rebranded Dahua cameras - whose use is actually banned in several US government agencies. I put up a firewall blocking them from accessing anything outside my local network, since 
+		they should only be connecting with the NVR anyway. But the same principle applies no matter which camera manufacturer you use - in a local, DIY solution, any surveillance camera 
+		has no reason to access the WAN.
+		<br>
+		<br>
+		Other than the CPU and cameras, the other components were pretty much decided by what the cheapest option at the time was. This is a list of components I bought and their costs:
+	</p>
+	<ul>
+		<li>Intel Pentium Gold G7400 - $80</li>
+		<li>Gigabyte B660M DS3H DDR4 - $110</li>
+		<li>Silicon Power DDR4 RAM 3200Mhz - $60</li>
+		<li>Random OEM 128GB NVMe on eBay - $15</li>
+		<li>Amcrest Turret Camera FHD - $50</li>
+		<li>Amcrest Turret Camera 4K - $100</li>
+		<li>BlueIris license - $70</li>
+	</ul>
+	<p>
+		I should mention that I had a spare case and PSU laying around, so the costs above don't represent a full ground-up build out (though, if we were to do a "from zero" build, it would include 
+		pricing for cable runs, a PoE switch, etc). I also record all data straight to my NAS, so HDDs aren't a factor as well (it also takes out the headache of data redundancy, within reason). 
+	</p>
+	<br>
+	<hr>
+	<br>
+	<h2>Implementation</h2>
+	<p>
+		Building the system was a breeze compared to running the cable needed for the cameras (not my strong suit). In setting up BlueIris itself, I found 2 settings that were critical for good 
+		power/storage performance - the first was to set both cameras as "Direct to disk", so that the CPU wouldn't re-encode the signal coming from the camera. This drops average CPU usage to 
+		11% in total for the system. The second was to use the setting 
+		for variable bitrate rather than constant bit rate; because both of my cameras are in locations that have sparse activity, using a variable bitrate has huge storage savings - rather than 
+		using 8-10Mbps or so, variable bitrate will use only 2-3Mbps. 
+		<br>
+		<br>
+		The ultimate question when all is said and done is this: how power effecient is it? The cameras themselves are quite effecient, both of them using up only about 4W each according to my 
+		PoE switch. The entire NVR build draws an average of 41W at the wall. I would have loved a solution that uses under 35W total, but coming in under 50W is almost as good. 
+		By my calculations, my electricity cost (including taxes, fees, etc) is $0.13/KWh. That means that this system costs me $4.59/month to run. That cost would be more reasonable with the 
+		addition of more cameras - the NVR wouldn't use too much more power with additional cameras, and with cameras using 4W each, I could scale to 10 cameras without breaking 100W total.
+	</p>
+	<br>
+	<br>
+	<h3><a href="../projects">← Back to projects list</a></h3>
+</body>
+</html>
