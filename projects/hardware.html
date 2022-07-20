@@ -15,6 +15,24 @@
 	<h2>Hardware is listed from top to bottom.</h2>
 	<br>
 	<br>
+	<h2>Hypervisor (not rack mounted, sitting on the top shelf)</h2>
+	<p>
+		I built this box with cost & power efficiency in mind. Most services have been virtualized on this machine - it has really cut down on a lot of other 
+		hardware/electricity costs. Specs:
+	</p>
+	<ul>
+		<li>Case - Rosewill FBM-X2 (awesome simple case for small builds)</li>
+		<li>CPU - Ryzen 5 5600X</li>
+		<li>RAM - Patriot Viper Steel 64GB DDR4 3600</li>
+		<li>Motherboard - Gigabyte B550M Aorus Pro-P</li>
+		<li>CPU Cooler - Thermalright Peerless Assassin 120 SE (this cooler fits in the case with literally 1mm to spare)</li>
+		<li>PSU - Corsair SF450 Platinum</li>
+		<li>Storage - 2 x Sky Hynix Gold P31 1TB NVMe (in a ZFS mirror)</li>
+		<li>10G networking card added as well</li>
+	</ul>
+	<br>
+	<hr>
+	<br>
 	<h2>Switch - Aruba S2500-24P PoE</h2>
 	<p>
 		I purchased this switch in particular for 3 reasons: 1) All ports have PoE capabilities, 2) There are 4 SFP+ ports, and 3) it was under $100. 
@@ -38,46 +56,33 @@
 	<br>
 	<h2>Supermicro 2U Chassis</h2>
 	<p>
-		This is the most hodge-podge aspect of my rack - I bought the chassis with some outdated motherboard on a surplus clearance sale, and tossed the motherboard. 
-		What did I replace it with? A slightly less sucky motherboard I bought from another surplus sale, of course! Specs:
-	</p>
-	<ul>
-	<li>Lenovo proprietary motherboard</li>
-	<li>Core i7-4790</li>
-	<li>16 GB DDR3 1600Mhz</li>
-	<li>128GB SSD (boot drive, I had it laying around)</li>
-	<li>2TB Crucial SSD (used as temp storage & working directory)</li>
-	<li>10G networking card (SFP+ DAC connected to switch)</li>
-	</ul>
-	<p>
-		So... a little underpowered, but it works for what I use it for. The 3 fans in the mid wall are Nidec Ultraflow V80E12BHA5-57, 
-		which are the same as the 4U chassis, but I've never had a problem with the noise level, even with the cpu under 100% load.
-		This box operates as my main seedbox, and it runs all of my backup scripts (mostly .bat files run nightly, Rclone to backup to GDrive).
+		This houses my suveillance system, it's not the best option because it doesn't utilize the 3.5" drive bays in the front. At some point when I get something else to put in 
+		there I'll put it in its own case. Build specs and more info are well documented <a href="../projects/surveillance">here.</a>
 	</p>
 	<br>
 	<hr>
 	<br>
 	<h2>Supermicro 4U Chassis</h2>
 	<p>
-		This is the bread and butter of the "lab". This is the 24 bay version of the 846 chassis, not the 36 bay. The operating system running is TrueNAS. 
+		Operates as my NAS. This is the 24 bay version of the 846 chassis, not the 36 bay. The operating system running is TrueNAS. 
 		My Plex and NextCloud servers run as jails on this box. These are the specs:
 	</p>
 	<ul>
-		<li>Supermicro X9DRi-F</li>
-		<li>2 x Xeon 2696 v2 with Supermicro active coolers (SNK-P0050AP4)</li>
-		<li>256GB DDR3 ECC 1066 Mhz (lots of RAM, but not that great of RAM)</li>
+		<li>Supermicro H11SSL-i</li>
+		<li>AMD Epyc 7282 (great processor, 120W TDP)</li>
+		<li>Arctic Freezer 4U cooler (height-wise this cooler fits, length-wise I had to remove the rear fan to make room for the SM rear chassis fans)</li>
+		<li>256GB DDR4 ECC 2133Mhz </li>
 		<li>LSI 9211-8i</li>
 		<li>10G networking card (SFP+ DAC connected to switch)</li>
 		<li>PWS-920P-SQ (this power supply is WAY quieter than the original 1200W one)</li>
 		<li>2 x 1TB NVMe drives (these are mirrored and store the jail metadata)</li>
 		<li>14 x 14TB WD Shucked HDDs - running in a RAID-Z3 configuration. Total usable pool capacity is 125 TiB.</li>
-		<li>1 x 12TB WD Shucked HDD - operating a backup for important data (non Movies/TV Shows). At some point this will need to be expanded. 
-		And for all the backup sticklers: I keep a mirror of this drive offsite, as well as a GDrive offsite backup of the entire server.</li>
-		<li>9 x 3TB random SAS drives I bought for $20 a pop - running in a RAID-Z2 configuration. Acts as storage for the seedbox.</li>
+		<li>1 x 12TB WD Shucked HDD - operating a backup for important data (sans replaceable media content). At some point this will need to be expanded. 
+		And for all the backup sticklers: I keep a mirror of this drive offsite, as well as a GDrive backup of the entire server.</li>
+		<li>9 x 3TB random SAS drives I bought for $20 a pop - running in a RAID-Z2 configuration. Acts as storage for the seedbox/surveillance system.</li>
 	</ul>
 	<p>
-		It's a pretty capable server, but boy is it power hungry. Each of the CPUs has a TDP of 130W, plus there's overhead for the fact that the 
-		CPUs have to distribute workload. With the drives going and the CPUs idle, it'll pull 300W at the wall, and can easily reach 700W when under a heavy load.
+		The motherboard/cpu combo is reasonably power efficient, but obviously 24x7200RPM drives use up quite a bit of power. At idle it'll pull 250W at the wall.
 		<br>
 		<br>
 		As far as what's running on the server, the Plex jail is pretty much vanilla, but NextCloud is fairly modified to act as a family photo server 
